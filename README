@@ -1,0 +1,118 @@
+## Farcasanu Bianca Ioana 313CAb 2023-2024
+
+## image_editor
+	Acest program este impartit in mai multe fisiere header incluse unele in
+altele pentru a facilita intelegerea si organizarea codului.
+	Ideaa principala a acestui program este prelucrarea de imagini, adica
+prelucrarea unor matrici conform unor comenzi introduse in terminal. Pentru
+a interpreta aceste comenzi, stiind ca o comanda se afla pe o linie separata,
+citesc fiecare linie in parte dupa care verific daca cuvantul se potriveste
+cu primul cuvant al unei comenzi, caz in care intra pe ramura respectiva si
+verifica urmatoarele cuvinte daca este cazul. De fiecare data cand intalneste
+un cuvant care nu ar trebui sa apartina unei comenzi, afiseaza mesajul de
+eroare.
+	Am inceput acest program prin a crea o structura de tip "image" care sa
+retina toate caracteristicile unei imagini. Dupa care am construit o
+structura "pixel" specifica imaginilor color (in care fiecare termen este
+format din 3 componente).
+
+## LOAD
+	Prima functie este cea de incarcare, si anume "LOAD". Pentru aceasta am
+avut nevoie de cateva functii de alocare a memoriei si dealocare a acesteia
+pentru fiecare tip de matrice in parte. (nu puteam utiliza aceeasi functie).
+Dupa aceea, fiindca am 2 tipuri de fisier (binar si ascii), iar primele 3
+randuri din ambele fisiere sunt ascii, am fost nevoita sa deschid initial
+fisierul in mod text cu "w" pentru a citi primele 2 respectiv 3 randuri
+(depinde daca am valoarea ascii pe randul 3 sau nu). Daca fisierul nu se
+poate deschide, afiseaza mesajul aferent si verifica daca este vreo matrice
+incarcata deja in memorie pentru a o elibera. Citesc apoi tipul de matrice pe
+care il am specificat pe primul rand, dupa care verific de ce tip este pentru
+a distinge modul de citire. In cazul in care este de tipul P1, P2 sau P3
+citeste din fisier ascii, deci fisierul ramane deschis pana la terminarea
+citirii. Daca matricea este de tipul P4, P5 sau P6, dupa ce a citit primele 3
+randuri, inchide fisierul pentru a-l deschide in format binar "wb". Cand il
+deschid in acest fel cursorul este pozitionat la inceputul fisierului, de
+aceea trebuie sa mut cursorul la inceputul randului de unde vreau sa incep
+citirea matricii. Tot in aceeasi functie initializez si coordonatele fiecarei
+matrici cu dimensiunea totala a acesteia (o selectez pe toata).
+
+## SELECT
+	Pentru functia "SELECT", dupa ce citesc primul cuvant il citesc pe al
+doilea si verific daca e "ALL", caz in care intra pe ramura aceea si face
+functia "SELECT ALL" : reinitializeaza coordonatele cu dimensiunea totala
+a imaginii retinute in structura. Daca al doilea cuvant nu este "ALL",
+verifica cu ajutorul functiilor "verify_coordinates_select" si
+"verify_word_is_int" (verifica daca ceea ce este introdus drept string
+poate fi interpretat ca numar) daca exista fix 4 cuvinte dupa si daca
+acestea sunt numere pentru a face "SELECT <x1> <x2> <y1> <y2>", functie in
+care reinitializeaza coordonatele imaginii cu selectia ceruta doar daca
+aceasta selectie este valida.
+
+## HISTOGRAM + ROTATE
+	Functia "HISTOGRAM" verifica in codul meu doar daca comanda este
+introdusa corect de la tastatura (nu este implementat algoritmul). Aceeasi
+situatie si in cazul functiei "ROTATE".
+
+## CROP
+	Functia "CROP", ca si in cazul tuturor celorlalte functii, incepe prin a
+verifica daca nu exista nicio imagine incarcata in memorie, caz in care
+returneaza mesajul aferent, se intoarce in functia main si trece la citirea
+urmatoarei linii din terminal. Daca exista, creez o matrice auxiliara tot de
+tipul "image" intrucat nu stiu daca redimensionez o matrice in tonuri de gri,
+alb-negru sau o imagine color. Consider 2 variabile in care pun numarul
+noilor linii si coloane, dupa care parcurg matricea pe selectia facuta
+(prezenta in coordonate) si retin forma finala a matricii in variabila
+auxiliara (nu inainte de a verifica daca retin imaginea in "photo" sau
+"photorgb"). La final, eliberez memoria alocata matricii intiale, aloc cat
+pentru noua matrice taiata si plasez fiecare termen retinut in matricea
+auxiliara in matricea mea. Eliberez memoria pentru matricea auxiliara,
+actualizez noile coordonate cu selectia totala si afisez mesajul de succes.
+
+## APPLY
+	Functia urmatoare, "APPLY" trece prima data prin verificarea validitatii
+cuvintelor introduse, nu inainte de a verifica daca are vreo imagine
+incarcata in prealabil. Am realizat o functie principala "APPLY_PARAMETER"
+intrucat in toate cele 4 cazuri algoritmul este acelasi, difera doar matricea
+kernel specifica fiecarei comenzi. Initializez aceasta matrice kernel si o
+trimit ca argument functiei "APPLY_PARAMETER".
+	Aceasta functie "APPLY_PARAMETER" recurge deopotriva la o varibila
+auxiliara de tipul image in care se retine matricea modificata, dupa care
+inlocuiesc toata imaginea veche cu noile valori retinute in matricea
+auxiliara. Nu este nevoie sa eliberez memoria si sa aloc din nou intrucat nu
+se modifica numarul termenilor, ci doar valoarea lor. Daca sunt margini,
+acestea raman nemodificate intrucat n-au destui vecini, iar pentru restul
+termenilor aplic formula specifica, limitad la final cu ajutorul functiei
+clamp_int in cazul in care, in urma operatiilor, valorile depasesc minimul
+si maximul impuse.
+
+## EQUALIZE
+	Pentru functia "EQUALIZE" am nevoie de un vector de frecventa caruia ii
+aloc memorie cu ajutorul functiei "calloc" intrucat doresc sa il si
+intializez cu 0, fiecare termen pornind ca numar de aparitii de la 0.
+Parcurg o data matricea pentru a popula vectorul de frecventa cu numarul
+aparitiilor fiecarui termen (nu pot modifica termenii in aceeasi parcurgere
+intrucat s-ar modifica si vectorul de frecventa). Mai apoi, parcurg din nou
+matricea pentru a modifica fiecare termen in parte conform formulei, il
+limitez cu ajutorul functiei clamp_double (lucrez cu numere de tip double),
+dupa care il transform in int cu ajutorul functiei round(). La final eliberez
+memoria alocata vectorului de frecventa.
+
+## SAVE
+	Functia "SAVE" incepe prin a verifica daca exista vreo matrice incarcata
+in prealabil pentru a afisa mesajul de eroare in cazul in care nu este. Ca si
+in cazul functiei "LOAD", nu stiu in ce tip de fisier trebuie sa scriu
+matricea rezultata. Il deschid initial in format ascii pentru a popula
+primele 2 respectiv 3 randuri, dupa care, daca nu exista cuvantul "ascii"
+la finalul apelului functiei, sunt nevoita sa inchid fisierul si sa-l deschid
+din nou in format "ab" (append binary) pentru a putea scrie in format binar
+de unde a ramas cursorul ultima data. Am construit pentru fiecare tip de
+matrice cate o functie separata. Fac, de asemenea, convertirea tipului de
+imagine in functie de tipul fisierului in care o scriu intrucat trebuie
+respectat formatul conform caruia am incarcat imaginea. (Daca am incarcat-o
+in "LOAD" ca fiind P2, iar in "SAVE" mi se cere sa o salvez intr-un fisier
+binar, trebuie sa o salvez sub tipul P5). La final inchid fisierul deschis
+pentru salvare, iar apoi afisez mesajul de succes.
+
+## EXIT
+	Functia "EXIT" elibereaza toate resursele alocate verificand mai intai
+daca are o imagine incarcata deja. Daca nu are, afisez mesajul de eroare.
