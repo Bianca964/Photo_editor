@@ -1,5 +1,3 @@
-# Farcasanu Bianca Ioana 313CAb 2023-2024
-
 # compiler setup
 CC=gcc
 CFLAGS=-Wall -Wextra -std=c99
